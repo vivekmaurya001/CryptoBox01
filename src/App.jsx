@@ -1,68 +1,157 @@
-import { Box, Flex, useMediaQuery } from "@chakra-ui/react";
 import "./App.css";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+} from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import HomePage2 from "./components/MainPage/HomePage2";
+import Landing from "./components/Landing";
+import { AuthContext } from "./Context/contextApi";
 import { ethers } from "ethers";
-
-import Sidebar from "./components/Sidebar";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import HomePage from "./components/MainPage/HomePage";
-import CryptoCurrencies from "./components/MainPage/CryptoCurrencies";
-import Exchanges from "./components/MainPage/Exchanges";
-import News from "./components/MainPage/News";
-import CoinDetails from "./components/MainPage/CoinDetails";
-import SellNft from "./components/BuySellNft/SellNft";
-import { useEffect, useState } from "react";
-import Pay from "./components/PayEther/Pay";
+import WalletLink from "@coinbase/wallet-sdk";
 
 function App() {
-  const [account, setAccount] = useState("");
+  const [account, setAccount] = useState(null);
+  const [Balance, setBalance] = useState(null);
+  const [network, setNetwork] = useState(null);
+  const [WalletType, setwallettype] = useState("");
+  const { currentUser } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-  const loadBlockchainData = async () => {
-    const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-    //  const contractABI = abi.abi;
+  const switchingNetwork = async (str) => {
     try {
-      const { ethereum } = window;
-
-      if (window.ethereum !== "undefined") {
-        window.ethereum.on("chainChanged", () => {
-          window.location.reload();
-        });
-
-        window.ethereum.on("accountsChanged", () => {
-          window.location.reload();
-        });
-
-        const provider1 = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider1.getSigner();
+      // Request to switch network to Ethereum Mainnet
+      if (str === "ETH") {
+        if (WalletType === "metamask") {
+          await window.ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: "0x1" }], // 0x1 is the chainId for Ethereum Mainnet in hexadecimal
+          });
+        } else {
+          await ethereum.send("wallet_switchEthereumChain", [
+            { chainId: "0x1" },
+          ]);
+        }
+      } else if (str === "sepETH") {
+        // Request to switch network
+        if (WalletType === "metamask") {
+          await window.ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: "0xaa36a7" }], // 0xaa36a7 is 11155111 in hex (Sepolia's chainId)
+          });
+        } else {
+          await ethereum.send("wallet_switchEthereumChain", [
+            { chainId: "0xaa36a7" },
+          ]); // Sepolia's chainId
+        }
+      }
+      if (WalletType == "metamask") {
+        connectWallet("metamask");
       } else {
-        alert("Please install metamask");
+        connectWallet("coinbase");
       }
     } catch (error) {
-      console.log(error);
+      // Handle errors
+      if (error.code === 4902) {
+        // This error code means the Ethereum Mainnet has not been added to MetaMask
+        console.log("Ethereum Mainnet is not added to MetaMask.");
+      } else {
+        console.log("Failed to switch to Ethereum Mainnet:", error);
+      }
     }
   };
+
+  const walletLink = new WalletLink({
+    appName: "CryptoBox",
+    darkMode: false,
+  });
+
+  const ethereum = walletLink.makeWeb3Provider(
+    "https://mainnet.infura.io/v3/b811b8acd4af4785b0f574ebe8df1685", // Replace with your Infura project ID or other provider URL
+    1 // Network ID for Ethereum Mainnet
+  );
+
+  const connectWallet = async (walletType) => {
+    if (walletType === "metamask" && window.ethereum) {
+      try {
+        setwallettype(walletType);
+        const accounts = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
+        setAccount(accounts[0]);
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const network = await provider.getNetwork();
+        setNetwork(network.name.toUpperCase());
+        const balance = await provider.getBalance(accounts[0]);
+        const balanceInEther = ethers.formatEther(balance);
+        setBalance(balanceInEther);
+        setIsModalVisible(false); // Hide modal after connection
+      } catch (error) {
+        console.log("Failed to connect metamask wallet:", error);
+      }
+    } else if (walletType === "coinbase" && ethereum) {
+      try {
+        setwallettype(walletType);
+        const accounts = await ethereum.enable(); // Enable Coinbase Wallet
+        setAccount(accounts[0]);
+
+        const provider = new ethers.BrowserProvider(ethereum);
+        const network = await provider.getNetwork();
+        setNetwork(network.name.toUpperCase());
+
+        const balance = await provider.getBalance(accounts[0]);
+        const balanceInEther = ethers.formatEther(balance);
+        setBalance(balanceInEther);
+      } catch (error) {
+        console.log("Failed to connect coinbase wallet:", error);
+      }
+    } else {
+      alert("Please install a supported wallet!");
+    }
+  };
+
   useEffect(() => {
-    loadBlockchainData();
+    if (window.ethereum) {
+      window.ethereum.on("accountsChanged", (accounts) => {
+        connectWallet();
+      });
+      // Listen for network changes
+      window.ethereum.on("chainChanged", (chainId) => {
+        console.log("Network changed to:", chainId);
+        connectWallet();
+      });
+    }
+    if (currentUser) {
+      navigate("/dashboard");
+    }
   }, []);
+
   return (
-    <Flex
-      overflowY={"scroll"}
-      overflowX={"hidden"}
-      h={"100vh"}
-      w="100vw"
-      position={"relative"}
-      className="Mainbox"
-    >
-      <Sidebar account={account} setAccount={setAccount} />
+    <>
       <Routes>
-        <Route exact path="/" element={<HomePage account={account} />} />
-        {/* <Route exact path="/Sell" element={<SellNft />} /> */}
-        {/* <Route exact path="/pay" element={<Pay />} /> */}
-        {/* <Route exact path="/CryptoCurrencies" element={<CryptoCurrencies />} /> */}
-        {/* <Route exact path="/Exchanges" element={<Exchanges />} /> */}
-        {/* <Route exact path="/News" element={<News />} /> */}
-        {/* <Route exact path="/crypto/:coinId" element={<CoinDetails />} /> */}
+        <Route exact path="/" element={<Landing />} />
+        <Route
+          exact
+          path="/dashboard"
+          element={
+            currentUser ? (
+              <HomePage2
+                network={network}
+                switchingNetwork={switchingNetwork}
+                Balance={Balance}
+                connectWallet={connectWallet}
+                account={account}
+              />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
       </Routes>
-    </Flex>
+    </>
   );
 }
 

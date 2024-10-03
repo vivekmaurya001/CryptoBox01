@@ -1,18 +1,11 @@
-import { Box, Flex, Stack, Text, useMediaQuery } from "@chakra-ui/react";
 import React, { useState } from "react";
-import { useGetCryptoQuery } from "../../CryptoApi/Api";
-import { Avatar, Pagination } from "antd";
+import { Pagination } from "antd";
 import millify from "millify";
 import { Sparklines, SparklinesLine } from "react-sparklines";
 
-const MarketUpdate = ({ simplified }) => {
-  // let count = simplified ? 10 : 100;
+const MarketUpdate = ({ CoinArray }) => {
   const [count, setcount] = useState(10);
   const [currentPage, setcurrentPage] = useState(1);
-
-  const { data, isLoading } = useGetCryptoQuery();
-  const [coinList, setCoinlist] = useState(data?.data?.coins);
-  const [isLargerThan930] = useMediaQuery("(min-width: 930px)");
 
   const handlePageChange = (page, pageSize) => {
     if (page > currentPage) {
@@ -23,52 +16,45 @@ const MarketUpdate = ({ simplified }) => {
     setcurrentPage(page);
   };
   return (
-    <Stack
-      mt={simplified ? "1rem" : "10vh"}
-      p={"2rem"}
-      color={"white"}
-      w={isLargerThan930 ? "100%" : "930px"}
-      bgColor={"#1c1c1c"}
-      borderRadius={"1rem"}
-    >
-      <Flex
-        justifyContent={"space-between"}
-        w="100%"
-        h={"60px"}
-        fontSize={"25px"}
-        borderBottom={"3px solid grey"}
-      >
-        <Box w={"25%"}># Name</Box>
-        <Box w={"15%"}>Last Price</Box>
-        <Box w={"10%"}>Change</Box>
-        <Box w={"20%"}>Market Cap</Box>
-        <Box>Last 20 Days</Box>
-      </Flex>
-      {coinList?.slice(count - 10, count).map((coin, i) => (
-        <Flex
-          justifyContent={"space-between"}
-          w="100%"
-          fontSize={"20px"}
-          borderBottom={"1px solid grey"}
+    <div className="flex flex-col gap-4 mt-4 p-6 text-white bg-[#1c1c1c] rounded-md items-center">
+      <div className="flex justify-around w-full h-[60px] text-xl md:text-2xl border-b-4 border-gray-500">
+        <div className="w-1/4"># Name</div>
+        <div className="w-1/4">Last Price</div>
+        <div className="w-1/6">Change</div>
+        <div className="w-1/6">Market Cap</div>
+        <div>Last 20 Days</div>
+      </div>
+      {CoinArray?.slice(count - 10, count).map((coin, i) => (
+        <div
+          class="flex justify-between w-full text-base md:text-xl border-b border-gray-400 hover:bg-gray-800 cursor-pointer"
           key={i}
-          _hover={{ cursor: "pointer", bg: "#1f2129" }}
         >
-          <Flex gap={"10px"} fontWeight={600} w={"30%"}>
-            {coin.rank}
-            <Avatar size={40} src={coin.iconUrl} />
-            {coin.name}
-            <Text color={"grey"}>{coin.symbol}</Text>
-          </Flex>
-          <Box w={"15%"} fontWeight={700}>
+          <div class="flex gap-2 font-semibold w-1/3">
+            <span>{coin.rank}</span>
+            <img
+              class="w-10 h-10 rounded-full"
+              src={coin.iconUrl}
+              alt={`${coin.name} icon`}
+            />
+            <span>{coin.name}</span>
+            <span class="text-gray-400">{coin.symbol}</span>
+          </div>
+
+          <div class="w-1/6 font-bold">
             ${Math.round(coin.price * 100) / 100}
-          </Box>
-          <Box w={"10%"} color={coin.change.charAt(0) === "-" ? "red" : "blue"}>
+          </div>
+
+          <div
+            class={`w-1/12 text-${
+              coin.change.charAt(0) === "-" ? "red-500" : "blue-500"
+            }`}
+          >
             {coin.change}
-          </Box>
-          <Box w={"10%"} fontWeight={700}>
-            ${millify(coin.marketCap)}
-          </Box>
-          <Box w={"15%"} h={"100%"}>
+          </div>
+
+          <div class="w-1/6 font-bold">${millify(coin.marketCap)}</div>
+
+          <div class="w-1/6 overflow-hidden text-xl md:text-2xl">
             <Sparklines
               data={coin.sparkline.slice(0, 20)}
               svgWidth={150}
@@ -79,29 +65,21 @@ const MarketUpdate = ({ simplified }) => {
                 color={coin.change.charAt(0) === "-" ? "red" : "blue"}
               />
             </Sparklines>
-          </Box>
-        </Flex>
+          </div>
+        </div>
       ))}
-      <Flex
-        justifyContent={"center"}
-        // bg={"#74b885"}
-        bgGradient="linear(to-r, #8456af, #37cdbb)"
-        p={"10px"}
-        borderRadius={"9px"}
-        minW={"24%"}
-        alignSelf={"center"}
-      >
+      <div className="w-[350px] flex justify-center bg-gradient-to-r from-[#8456af] to-[#37cdbb]  p-3 rounded-lg">
         <Pagination
           style={{
             fontSize: "23px",
             fontWeight: "600",
           }}
           defaultCurrent={1} // Initial page number
-          total={50} // Total number of items
+          total={30} // Total number of items
           onChange={handlePageChange} // Callback when page changes
         />
-      </Flex>
-    </Stack>
+      </div>
+    </div>
   );
 };
 
