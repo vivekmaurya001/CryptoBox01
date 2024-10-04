@@ -8,8 +8,9 @@ export const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
-  const REACT_APP_INFURA_URL =
-    "https://optimism-mainnet.infura.io/v3/b811b8acd4af4785b0f574ebe8df1685";
+  const REACT_APP_INFURA_URL = `https://optimism-mainnet.infura.io/v3/${
+    import.meta.env.VITE_APP_INFURA_ID
+  }`;
 
   const navigate = useNavigate();
 
@@ -97,10 +98,6 @@ export const AuthContextProvider = ({ children }) => {
         ((formattedLatestPrice - formattedPreviousPrice) /
           formattedPreviousPrice) *
         100;
-
-      console.log(
-        `Price of ${priceFeedAddresses[index].name}: $${formattedLatestPrice}`
-      );
 
       return {
         formattedLatestPrice,

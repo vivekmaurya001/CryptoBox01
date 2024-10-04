@@ -29,11 +29,11 @@ const Login = ({ toggleForm }) => {
 
       navigate("/dashboard");
     } catch (err) {
+      console.error("Login error:", err.message);
       notification.error({
         message: "Error Occurred!",
         description: err.message || "An error occurred during login.",
       });
-      console.error("Login error:", err.message);
       setLoading(false);
     }
   };

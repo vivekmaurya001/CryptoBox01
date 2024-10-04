@@ -17,7 +17,6 @@ const RealTinePrice = ({ CoinArray, coinId }) => {
         if (LatestObj !== undefined && LatestObj !== null) {
           setLatestPrice(LatestObj.formattedLatestPrice);
           setPriceChange(LatestObj.priceChange);
-          console.log(LatestObj);
         } else {
           console.error("Price is undefined or null");
         }

@@ -52,10 +52,8 @@ const HomePage2 = ({
   };
 
   useEffect(() => {
-    console.log(data);
     const Arr = FilterFxn(data?.data?.coins);
     setfilteredCoins(Arr);
-    console.log(Arr);
   }, [data]);
 
   return (

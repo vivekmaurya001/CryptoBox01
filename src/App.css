@@ -9,17 +9,7 @@ body {
 
 .Mainbox{
     background-color: #0f0e13;
-    /* background-image: */
-        /* radial-gradient(at 0% 0%, hsl(267, 13%, 14%) 0, transparent 50%), */
-        /* radial-gradient(at 0% 0%, hsl(266, 34%, 52%) 0, transparent 50%), */
-        /* radial-gradient(at 0% 0%, rgb(20, 130, 121) 0, transparent 60%); */
 }
-/* .text-gradient {
-    background-color: #fff;
-    background-image: radial-gradient(at 70% 46%, rgb(156, 150, 150) 0, transparent 53%), radial-gradient(at 100% 60%, rgb(0, 0, 0) 0, transparent 50%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-} */
 
 @media(max-width:976px){
     html{

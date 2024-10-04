@@ -56,13 +56,15 @@ const MarketUpdate = ({ CoinArray }) => {
 
           <div class="w-1/6 overflow-hidden text-xl md:text-2xl">
             <Sparklines
-              data={coin.sparkline.slice(0, 20)}
+              data={coin.sparkline
+                .filter((value) => value !== null && value !== undefined)
+                .slice(0, 20)}
               svgWidth={150}
               limit={20}
               svgHeight={50}
             >
               <SparklinesLine
-                color={coin.change.charAt(0) === "-" ? "red" : "blue"}
+                color={coin.change.charAt(0) === "-" ? "red" : "green"}
               />
             </Sparklines>
           </div>

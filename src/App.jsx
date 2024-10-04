@@ -70,8 +70,10 @@ function App() {
   });
 
   const ethereum = walletLink.makeWeb3Provider(
-    "https://mainnet.infura.io/v3/b811b8acd4af4785b0f574ebe8df1685", // Replace with your Infura project ID or other provider URL
-    1 // Network ID for Ethereum Mainnet
+    `https://optimism-mainnet.infura.io/v3/${
+      import.meta.env.VITE_APP_INFURA_ID
+    }`,
+    1
   );
 
   const connectWallet = async (walletType) => {
