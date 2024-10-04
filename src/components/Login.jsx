@@ -61,7 +61,7 @@ const Login = ({ toggleForm }) => {
   return (
     <div className="h-90 rounded-lg border-white border-opacity-10 border-2 p-6 max-w-lg w-full backdrop-blur-lg shadow-[0_0_15px_rgba(255,255,255,0.2)] mx-3">
       <h2 className="text-2xl text-center mb-10 text-white font-bold">
-        Create a new account
+        Login to your account
       </h2>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="relative mb-4">
